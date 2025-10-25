@@ -71,7 +71,7 @@ This project is a full-stack application consisting of:
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/codexray.git
+git clone https://github.com/elementary15/codexray.git
 cd codexray
 ```
 
@@ -415,3 +415,4 @@ pip install flask-cors
 **Your Name**
 - GitHub: [@yourusername](https://github.com/elementary15)
 - Email: vshamanth6@gmail.com
+
