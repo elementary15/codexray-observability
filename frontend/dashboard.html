@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeXray Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 min-h-screen">
+    <!-- Login/Register Screen -->
+    <div id="auth-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-slate-800 rounded-lg shadow-2xl p-8 w-full max-w-md border border-slate-700">
+            <div class="flex items-center justify-center mb-6">
+                <svg class="w-12 h-12 text-blue-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+                <h1 class="text-3xl font-bold text-white">CodeXray</h1>
+            </div>
+            <p class="text-slate-400 text-center mb-6">Observability & Security Platform</p>
+            
+            <div class="flex mb-6 bg-slate-700 rounded-lg p-1">
+                <button onclick="setAuthMode('login')" id="login-tab" class="flex-1 py-2 rounded-md transition bg-blue-600 text-white">
+                    Login
+                </button>
+                <button onclick="setAuthMode('register')" id="register-tab" class="flex-1 py-2 rounded-md transition text-slate-300">
+                    Register
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-slate-300 mb-2">Username</label>
+                    <input type="text" id="username" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-slate-300 mb-2">Password</label>
+                    <input type="password" id="password" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-500">
+                </div>
+                <div id="auth-error" class="text-red-400 text-sm hidden"></div>
+                <button onclick="handleAuth()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition">
+                    <span id="auth-button-text">Login</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div id="dashboard-screen" class="hidden p-6">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header -->
+            <div class="bg-slate-800 rounded-lg shadow-xl p-6 mb-6 border border-slate-700">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <svg class="w-8 h-8 text-blue-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                        <div>
+                            <h1 class="text-2xl font-bold text-white">CodeXray Dashboard</h1>
+                            <p class="text-slate-400">Welcome, <span id="username-display"></span></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button onclick="toggleSettings()" class="p-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                        </button>
+                        <button onclick="handleLogout()" class="flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                            </svg>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Panel -->
+            <div id="settings-panel" class="hidden bg-slate-800 rounded-lg shadow-xl p-6 mb-6 border border-slate-700">
+                <h2 class="text-xl font-bold text-white mb-4">Alert Thresholds</h2>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-slate-300 mb-2">CPU Threshold (%)</label>
+                            <input type="number" id="cpu-threshold" value="80" min="0" max="100" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 mb-2">Memory Threshold (%)</label>
+                            <input type="number" id="memory-threshold" value="75" min="0" max="100" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+                    <button onclick="updateThresholds()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+                        Update Thresholds
+                    </button>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div class="bg-slate-800 rounded-lg shadow-xl p-6 border border-slate-700">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-400 text-sm">Total Alerts</p>
+                            <p class="text-3xl font-bold text-white mt-1" id="total-alerts">0</p>
+                        </div>
+                        <svg class="w-10 h-10 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="bg-slate-800 rounded-lg shadow-xl p-6 border border-slate-700">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-400 text-sm">CPU Alerts</p>
+                            <p class="text-3xl font-bold text-white mt-1" id="cpu-alerts">0</p>
+                        </div>
+                        <svg class="w-10 h-10 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="bg-slate-800 rounded-lg shadow-xl p-6 border border-slate-700">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-400 text-sm">Memory Alerts</p>
+                            <p class="text-3xl font-bold text-white mt-1" id="memory-alerts">0</p>
+                        </div>
+                        <svg class="w-10 h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="bg-slate-800 rounded-lg shadow-xl p-6 border border-slate-700">
+                    <div>
+                        <p class="text-slate-400 text-sm">Avg CPU / Memory</p>
+                        <p class="text-2xl font-bold text-white mt-1" id="averages">0% / 0%</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metrics Chart -->
+            <div class="bg-slate-800 rounded-lg shadow-xl p-6 mb-6 border border-slate-700">
+                <h2 class="text-xl font-bold text-white mb-4">Real-Time Metrics</h2>
+                <canvas id="metricsChart" height="80"></canvas>
+            </div>
+
+            <!-- Alerts Table -->
+            <div class="bg-slate-800 rounded-lg shadow-xl p-6 border border-slate-700">
+                <h2 class="text-xl font-bold text-white mb-4">Recent Alerts</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-slate-700">
+                                <th class="text-left py-3 px-4 text-slate-300">Type</th>
+                                <th class="text-left py-3 px-4 text-slate-300">Value</th>
+                                <th class="text-left py-3 px-4 text-slate-300">Threshold</th>
+                                <th class="text-left py-3 px-4 text-slate-300">Time</th>
+                                <th class="text-left py-3 px-4 text-slate-300">Message</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alerts-table">
+                            <tr>
+                                <td colspan="5" class="text-center py-8 text-slate-400">
+                                    Loading alerts...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5050/api';
+        let authToken = null;
+        let currentUser = null;
+        let authMode = 'login';
+        let updateInterval = null;
+        let metricsChart = null;
+
+        function setAuthMode(mode) {
+            authMode = mode;
+            document.getElementById('login-tab').className = mode === 'login' 
+                ? 'flex-1 py-2 rounded-md transition bg-blue-600 text-white'
+                : 'flex-1 py-2 rounded-md transition text-slate-300';
+            document.getElementById('register-tab').className = mode === 'register'
+                ? 'flex-1 py-2 rounded-md transition bg-blue-600 text-white'
+                : 'flex-1 py-2 rounded-md transition text-slate-300';
+            document.getElementById('auth-button-text').textContent = mode === 'login' ? 'Login' : 'Register';
+        }
+
+        async function handleAuth() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('auth-error');
+
+            if (!username || !password) {
+                errorDiv.textContent = 'Please enter username and password';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const endpoint = authMode === 'login' ? '/login' : '/register';
+                const response = await fetch(API_BASE + endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (authMode === 'register') {
+                        alert('Registration successful! Please login.');
+                        setAuthMode('login');
+                        document.getElementById('password').value = '';
+                    } else {
+                        authToken = data.token;
+                        currentUser = data.username;
+                        showDashboard();
+                    }
+                    errorDiv.classList.add('hidden');
+                } else {
+                    errorDiv.textContent = data.error;
+                    errorDiv.classList.remove('hidden');
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Error connecting to server. Make sure backend is running!';
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('dashboard-screen').classList.remove('hidden');
+            document.getElementById('username-display').textContent = currentUser;
+            
+            initChart();
+            updateDashboard();
+            updateInterval = setInterval(updateDashboard, 3000);
+        }
+
+        function handleLogout() {
+            clearInterval(updateInterval);
+            authToken = null;
+            currentUser = null;
+            document.getElementById('auth-screen').classList.remove('hidden');
+            document.getElementById('dashboard-screen').classList.add('hidden');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        function toggleSettings() {
+            const panel = document.getElementById('settings-panel');
+            panel.classList.toggle('hidden');
+        }
+
+        async function updateThresholds() {
+            const cpu = document.getElementById('cpu-threshold').value;
+            const memory = document.getElementById('memory-threshold').value;
+
+            try {
+                const response = await fetch(API_BASE + '/thresholds', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + authToken
+                    },
+                    body: JSON.stringify({ cpu: parseFloat(cpu), memory: parseFloat(memory) })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('Thresholds updated successfully!');
+                    toggleSettings();
+                }
+            } catch (error) {
+                alert('Error updating thresholds');
+            }
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('metricsChart').getContext('2d');
+            metricsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'CPU %',
+                            data: [],
+                            borderColor: 'rgb(59, 130, 246)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Memory %',
+                            data: [],
+                            borderColor: 'rgb(16, 185, 129)',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#E5E7EB' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { color: '#9CA3AF' },
+                            grid: { color: '#374151' }
+                        },
+                        x: {
+                            ticks: { color: '#9CA3AF' },
+                            grid: { color: '#374151' }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function updateDashboard() {
+            try {
+                // Get metrics
+                const metricsRes = await fetch(API_BASE + '/metrics?limit=20', {
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+                const metricsData = await metricsRes.json();
+
+                if (metricsData.success) {
+                    const metrics = metricsData.data;
+                    const labels = metrics.map(m => new Date(m.timestamp * 1000).toLocaleTimeString());
+                    const cpuData = metrics.map(m => m.cpu.toFixed(2));
+                    const memoryData = metrics.map(m => m.memory.toFixed(2));
+
+                    metricsChart.data.labels = labels;
+                    metricsChart.data.datasets[0].data = cpuData;
+                    metricsChart.data.datasets[1].data = memoryData;
+                    metricsChart.update('none');
+                }
+
+                // Get summary
+                const summaryRes = await fetch(API_BASE + '/summary', {
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+                const summaryData = await summaryRes.json();
+
+                if (summaryData.success) {
+                    const summary = summaryData.data;
+                    document.getElementById('total-alerts').textContent = summary.totalAlerts;
+                    document.getElementById('cpu-alerts').textContent = summary.breakdown.cpu;
+                    document.getElementById('memory-alerts').textContent = summary.breakdown.memory;
+                    document.getElementById('averages').textContent = 
+                        `${summary.averages.cpu}% / ${summary.averages.memory}%`;
+                }
+
+                // Get alerts
+                const alertsRes = await fetch(API_BASE + '/alerts', {
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+                const alertsData = await alertsRes.json();
+
+                if (alertsData.success) {
+                    const alerts = alertsData.data.slice(0, 10);
+                    const tableBody = document.getElementById('alerts-table');
+                    
+                    if (alerts.length === 0) {
+                        tableBody.innerHTML = `
+                            <tr>
+                                <td colspan="5" class="text-center py-8 text-slate-400">
+                                    No alerts yet. System is running smoothly!
+                                </td>
+                            </tr>
+                        `;
+                    } else {
+                        tableBody.innerHTML = alerts.map(alert => `
+                            <tr class="border-b border-slate-700 hover:bg-slate-700">
+                                <td class="py-3 px-4">
+                                    <span class="px-2 py-1 rounded text-xs font-semibold ${
+                                        alert.type === 'CPU' 
+                                            ? 'bg-blue-900 text-blue-300' 
+                                            : 'bg-green-900 text-green-300'
+                                    }">
+                                        ${alert.type}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-white">${alert.value}%</td>
+                                <td class="py-3 px-4 text-slate-300">${alert.threshold}%</td>
+                                <td class="py-3 px-4 text-slate-300 text-sm">
+                                    ${new Date(alert.timestamp * 1000).toLocaleTimeString()}
+                                </td>
+                                <td class="py-3 px-4 text-slate-400 text-sm">${alert.message}</td>
+                            </tr>
+                        `).join('');
+                    }
+                }
+            } catch (error) {
+                console.error('Error updating dashboard:', error);
+            }
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleAuth();
+        });
+    </script>
+</body>
+</html>
